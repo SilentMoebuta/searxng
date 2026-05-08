@@ -1,0 +1,21 @@
+# 使用官方 SearXNG 镜像作为基础
+FROM searxng/searxng:latest
+
+# 切换到 root 用户以复制配置文件
+USER root
+
+# 复制自定义 settings.yml（开启 JSON/RSS 格式）
+COPY settings.yml /etc/searxng/settings.yml
+
+# 确保配置文件权限正确（searxng 用户 UID 是 977）
+RUN chown 977:977 /etc/searxng/settings.yml && \
+    chmod 644 /etc/searxng/settings.yml
+
+# 切换回 searxng 用户运行
+USER 977
+
+# 暴露端口（SearXNG 默认 8080）
+EXPOSE 8080
+
+# 使用官方镜像的默认启动命令
+CMD ["/sbin/tini", "--", "/usr/local/searxng/dockerfiles/docker-entrypoint.sh"]
